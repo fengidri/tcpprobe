@@ -91,6 +91,7 @@ class G:
     output = None
     recv = 0
     handle=[0]
+    linenu = 0
 
 
 
@@ -109,6 +110,9 @@ def handle_print(data):
 
 
 def handle_write(data):
+    if 0 == G.linenu % 10:
+        print '\r%s' % G.linenu,
+        sys.stdout.flush()
     G.output.write(data)
 
 def read():
@@ -118,6 +122,7 @@ def read():
         if not d:
             break
         G.recv += len(d)
+        G.linenu += 1
         G.handle[0](d)
 
 def main():
