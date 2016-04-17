@@ -20,6 +20,7 @@ parser.add_argument("--daddr", help="remote ip")
 parser.add_argument("--sport", help="local port")
 parser.add_argument("--dport", help="remote port")
 parser.add_argument("-o", help="remote port")
+parser.add_argument("-r", help="reload module")
 args = parser.parse_args()
 
 class Filter(object):
@@ -83,17 +84,32 @@ def set_config():
     f.init(args)
     f.write()
 
+class Module(object):
+    def check(self):
+        if args.r and self.exist():
+            self.rmmod()
+
+        if not self.exist():
+            self.insmod()
+
+    def exist(self):
+        for line in lines:
+            t = line.split()
+            if t[0] == 'tcpprobe':
+                return True
+        return False
+
+    def insmod(self):
+        print "insmod tcpprobe.ko"
+        os.system('insmod tcpprobe.ko')
+
+    def rmmod(self):
+        print "rmmod tcpprobe.ko"
+        os.system('rmmod tcpprobe.ko')
+
 def read_config():
     Filter().read()
 
-def check_module():
-    lines = open('/proc/modules').readlines()
-    for line in lines:
-        t = line.split()
-        if t[0] == 'tcpprobe':
-            break
-    else:
-        os.system('insmod tcpprobe.ko')
 
 
 
@@ -102,12 +118,13 @@ class G:
     recv = 0
     handle=[0]
     linenu = 0
+    module = Module()
 
 
 
 def receive_signal(signum, stack):
     print 'Received: %s' % G.recv
-    os.system('rmmod tcpprobe')
+    G.module.rmmod()
     sys.exit(0)
 
 
@@ -138,7 +155,7 @@ def read():
 
 
 def main():
-    check_module()
+    G.module.check()
     set_config()
 
     G.handle[0] = handle_print
