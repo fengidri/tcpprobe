@@ -86,6 +86,16 @@ def set_config():
 def read_config():
     Filter().read()
 
+def check_module():
+    lines = open('/proc/modules').readlines()
+    for line in lines:
+        t = line.split()
+        if t[0] == 'tcpprobe':
+            break
+    else:
+        os.system('insmod tcpprobe.ko')
+
+
 
 class G:
     output = None
@@ -97,6 +107,7 @@ class G:
 
 def receive_signal(signum, stack):
     print 'Received: %s' % G.recv
+    os.system('rmmod tcpprobe')
     sys.exit(0)
 
 
@@ -125,8 +136,11 @@ def read():
         G.linenu += 1
         G.handle[0](d)
 
+
 def main():
+    check_module()
     set_config()
+
     G.handle[0] = handle_print
     if args.o:
         G.output = open(args.o, 'w')
