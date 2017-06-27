@@ -93,6 +93,7 @@ class Module(object):
             self.insmod()
 
     def exist(self):
+        lines = os.popen('lsmod').readlines()
         for line in lines:
             t = line.split()
             if t[0] == 'tcpprobe':
