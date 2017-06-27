@@ -132,6 +132,8 @@ int send_diag_msg(int sockfd){
     conn_req.idiag_states = TCPF_ALL &
         ~((1<<TCP_SYN_RECV) | (1<<TCP_TIME_WAIT) | (1<<TCP_CLOSE));
 
+    conn_req.idiag_states = 1<<TCP_LISTEN;
+
     //Request extended TCP information (it is the tcp_info struct)
     //ext is a bitmask containing the extensions I want to acquire. The values
     //are defined in inet_diag.h (the INET_DIAG_*-constants).
